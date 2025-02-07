@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Clientes - Angels ERP{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Lista de Clientes</h2>
+    <a href="{% url 'clientes:adicionar_cliente' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mb-4 inline-block">Adicionar Cliente</a>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-purple-100">
+                    <th class="p-3">Nome</th>
+                    <th class="p-3">Email</th>
+                    <th class="p-3">Telefone</th>
+                    <th class="p-3">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr class="border-b border-purple-200 hover:bg-purple-50">
+                    <td class="p-3">{{ cliente.nome }}</td>
+                    <td class="p-3">{{ cliente.email }}</td>
+                    <td class="p-3">{{ cliente.telefone }}</td>
+                    <td class="p-3">
+                        <a href="{% url 'clientes:editar_cliente' cliente.id %}" class="text-blue-600 hover:underline mr-2">Editar</a>
+                        <a href="{% url 'clientes:detalhe_cliente' cliente.id %}" class="text-green-600 hover:underline">Detalhes</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-3 text-center">Nenhum cliente cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

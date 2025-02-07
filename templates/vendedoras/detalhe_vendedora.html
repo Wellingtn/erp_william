@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes da Vendedora - Angels ERP{% endblock %}
+
+{% block header %}Detalhes da Vendedora{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Detalhes da Vendedora: {{ vendedora.nome }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <p><strong>Nome:</strong> {{ vendedora.nome }}</p>
+            <p><strong>Telefone:</strong> {{ vendedora.telefone }}</p>
+        </div>
+    </div>
+    
+    <h3 class="text-xl font-semibold mb-2 text-purple-800">Estoque da Vendedora</h3>
+    <div class="overflow-x-auto mb-6">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-purple-100">
+                    <th class="p-3">Produto</th>
+                    <th class="p-3">Quantidade</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in estoque %}
+                <tr class="border-b border-purple-200 hover:bg-purple-50">
+                    <td class="p-3">{{ item.produto.nome }}</td>
+                    <td class="p-3">{{ item.quantidade }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2" class="p-3 text-center">Nenhum item no estoque.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <a href="{% url 'vendedoras:adicionar_estoque_vendedora' vendedora.id %}" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-300 mb-6 inline-block">Adicionar ao Estoque</a>
+
+    <h3 class="text-xl font-semibold mb-2 text-purple-800">Histórico de Acertos</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-purple-100">
+                    <th class="p-3">Data</th>
+                    <th class="p-3">Total de Vendas</th>
+                    <th class="p-3">Comissão</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for acerto in acertos %}
+                <tr class="border-b border-purple-200 hover:bg-purple-50">
+                    <td class="p-3">{{ acerto.data|date:"d/m/Y H:i" }}</td>
+                    <td class="p-3">R$ {{ acerto.total_vendas }}</td>
+                    <td class="p-3">R$ {{ acerto.comissao }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="p-3 text-center">Nenhum acerto registrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-6">
+        <a href="{% url 'vendedoras:lista_vendedoras' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mr-2">Voltar para Lista de Vendedoras</a>
+        <a href="{% url 'vendedoras:realizar_acerto' vendedora.id %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Realizar Acerto</a>
+    </div>
+</div>
+{% endblock %}
+

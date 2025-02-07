@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar ao Estoque da Vendedora - Angels ERP{% endblock %}
+
+{% block header %}Adicionar ao Estoque da Vendedora{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
+    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Adicionar ao Estoque de {{ vendedora.nome }}</h2>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label for="produto" class="block text-sm font-medium text-purple-700">Produto</label>
+            <select name="produto" id="produto" class="w-full p-2 border border-purple-300 rounded">
+                {% for produto in produtos %}
+                <option value="{{ produto.id }}">{{ produto.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="quantidade" class="block text-sm font-medium text-purple-700">Quantidade</label>
+            <input type="number" name="quantidade" id="quantidade" min="1" class="w-full p-2 border border-purple-300 rounded" required>
+        </div>
+        <div>
+            <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Adicionar ao Estoque</button>
+        </div>
+    </form>
+    <div class="mt-4">
+        <a href="{% url 'vendedoras:detalhe_vendedora' vendedora.id %}" class="text-purple-600 hover:underline">Voltar para Detalhes da Vendedora</a>
+    </div>
+</div>
+{% endblock %}
+

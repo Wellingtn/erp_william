@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if venda %}Editar{% else %}Nova{% endif %} Venda - Angels ERP{% endblock %}
+
+{% block header %}{% if venda %}Editar{% else %}Nova{% endif %} Venda{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-purple-800">{% if venda %}Editar{% else %}Nova{% endif %} Venda</h2>
+    <form method="post" class="space-y-4" id="venda-form">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-purple-700">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <h3 class="text-xl font-semibold mt-6 mb-2 text-purple-800">Itens da Venda</h3>
+        {{ formset.management_form }}
+        <div id="item-formset" class="space-y-4">
+            {% for form in formset %}
+            <div class="item-form border-t border-purple-200 pt-4 {% if forloop.counter0 > 0 %}hidden{% endif %}">
+                {% for field in form.visible_fields %}
+                <div class="mb-2">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-purple-700">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-item" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mt-2">Adicionar Item</button>
+        <div class="mt-6 text-right">
+            <p class="text-xl font-semibold text-purple-800">Total: R$ <span id="total-venda">0.00</span></p>
+        </div>
+        <div class="mt-6">
+            <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">{% if venda %}Atualizar{% else %}Finalizar{% endif %} Venda</button>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const formset = document.getElementById('item-formset');
+    const addButton = document.getElementById('add-item');
+    const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+    const totalVendaSpan = document.getElementById('total-venda');
+    const produtos = {{ produtos_json|safe }};
+
+    function updateUnitPrice(selectElement) {
+        const priceInput = selectElement.closest('.item-form').querySelector('[id$=preco_unitario]');
+        const selectedProductId = selectElement.value;
+        if (selectedProductId in produtos) {
+            priceInput.value = produtos[selectedProductId];
+        } else {
+            priceInput.value = '';
+        }
+        updateTotal();
+    }
+
+    function updateTotal() {
+        let total = 0;
+        formset.querySelectorAll('.item-form:not(.hidden)').forEach(form => {
+            const quantidade = parseFloat(form.querySelector('[id$=quantidade]').value) || 0;
+            const precoUnitario = parseFloat(form.querySelector('[id$=preco_unitario]').value) || 0;
+            total += quantidade * precoUnitario;
+        });
+        totalVendaSpan.textContent = total.toFixed(2);
+    }
+
+    function setupItemForm(form) {
+        const select = form.querySelector('select[id$=produto]');
+        select.addEventListener('change', function() {
+            updateUnitPrice(this);
+        });
+
+        form.querySelectorAll('input[id$=quantidade], input[id$=preco_unitario]').forEach(input => {
+            input.addEventListener('input', updateTotal);
+        });
+    }
+
+    formset.querySelectorAll('.item-form:not(.hidden)').forEach(setupItemForm);
+
+    addButton.addEventListener('click', function() {
+        const forms = formset.getElementsByClassName('item-form');
+        const hiddenForms = formset.querySelectorAll('.item-form.hidden');
+        
+        if (hiddenForms.length > 0) {
+            const nextForm = hiddenForms[0];
+            nextForm.classList.remove('hidden');
+            setupItemForm(nextForm);
+        } else {
+            const formNum = forms.length;
+            const newForm = forms[0].cloneNode(true);
+            
+            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formNum}-`);
+            newForm.innerHTML = newForm.innerHTML.replace(/_\d+_/g, `_${formNum}_`);
+            
+            newForm.querySelectorAll('input:not([type=hidden]), select').forEach(input => {
+                input.value = '';
+            });
+
+            newForm.classList.remove('hidden');
+            formset.appendChild(newForm);
+            setupItemForm(newForm);
+        }
+
+        totalForms.value = parseInt(totalForms.value) + 1;
+        updateTotal();
+    });
+
+    updateTotal();
+});
+</script>
+{% endblock %}
+

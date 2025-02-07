@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Estoque - Angels ERP{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Lista de Produtos</h2>
+    <a href="{% url 'estoque:adicionar_produto' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mb-4 inline-block">Adicionar Produto</a>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-purple-100">
+                    <th class="p-3">Nome</th>
+                    <th class="p-3">Preço</th>
+                    <th class="p-3">Quantidade</th>
+                    <th class="p-3">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for produto in produtos %}
+                <tr class="border-b border-purple-200 hover:bg-purple-50">
+                    <td class="p-3">{{ produto.nome }}</td>
+                    <td class="p-3">R$ {{ produto.preco }}</td>
+                    <td class="p-3">{{ produto.quantidade }}</td>
+                    <td class="p-3">
+                        <a href="{% url 'estoque:editar_produto' produto.id %}" class="text-blue-600 hover:underline mr-2">Editar</a>
+                        <a href="{% url 'estoque:excluir_produto' produto.id %}" class="text-red-600 hover:underline">Excluir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-3 text-center">Nenhum produto cadastrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

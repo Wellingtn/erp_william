@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Cliente - Angels ERP{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Detalhes do Cliente: {{ cliente.nome }}</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
+            <p><strong>Nome:</strong> {{ cliente.nome }}</p>
+            <p><strong>Email:</strong> {{ cliente.email }}</p>
+        </div>
+        <div>
+            <p><strong>Telefone:</strong> {{ cliente.telefone }}</p>
+            <p><strong>Endereço:</strong> {{ cliente.endereco }}</p>
+        </div>
+    </div>
+    <h3 class="text-xl font-semibold mb-2 text-purple-800">Histórico de Compras</h3>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-purple-100">
+                    <th class="p-3">Data</th>
+                    <th class="p-3">Vendedora</th>
+                    <th class="p-3">Total</th>
+                    <th class="p-3">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for venda in vendas %}
+                <tr class="border-b border-purple-200 hover:bg-purple-50">
+                    <td class="p-3">{{ venda.data|date:"d/m/Y H:i" }}</td>
+                    <td class="p-3">{{ venda.vendedora.nome }}</td>
+                    <td class="p-3">R$ {{ venda.total }}</td>
+                    <td class="p-3">
+                        <a href="{% url 'vendas:detalhe_venda' venda.id %}" class="text-blue-600 hover:underline">Detalhes</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-3 text-center">Nenhuma compra registrada.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-6">
+        <a href="{% url 'clientes:lista_clientes' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mr-2">Voltar para Lista de Clientes</a>
+        <a href="{% url 'clientes:editar_cliente' cliente.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Editar Cliente</a>
+    </div>
+</div>
+{% endblock %}
+

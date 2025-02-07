@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Angels ERP{% endblock %}
+
+{% block header %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded-lg p-6">
+    <h2 class="text-2xl font-semibold mb-6 text-purple-800">Dashboard</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Card Estoque -->
+        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-purple-800">Estoque</h3>
+            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_produtos }}</p>
+            <p class="text-sm text-purple-700">Total de Produtos</p>
+            <p class="text-sm text-red-600 mt-2">{{ produtos_baixo_estoque }} produtos com estoque baixo</p>
+            <a href="{% url 'estoque:lista_produtos' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Estoque</a>
+        </div>
+
+        <!-- Card Vendas -->
+        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-purple-800">Vendas</h3>
+            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_vendas }}</p>
+            <p class="text-sm text-purple-700">Total de Vendas</p>
+            <p class="text-sm text-green-600 mt-2">R$ {{ valor_total_vendas|floatformat:2 }} em vendas</p>
+            <a href="{% url 'vendas:lista_vendas' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Vendas</a>
+        </div>
+
+        <!-- Card Vendedoras -->
+        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-purple-800">Vendedoras</h3>
+            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_vendedoras }}</p>
+            <p class="text-sm text-purple-700">Total de Vendedoras</p>
+            <a href="{% url 'vendedoras:lista_vendedoras' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Vendedoras</a>
+        </div>
+
+        <!-- Card Clientes -->
+        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
+            <h3 class="text-xl font-semibold mb-4 text-purple-800">Clientes</h3>
+            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_clientes }}</p>
+            <p class="text-sm text-purple-700">Total de Clientes</p>
+            <a href="{% url 'clientes:lista_clientes' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Clientes</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
