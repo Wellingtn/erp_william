@@ -37,14 +37,16 @@ def detalhe_cliente(request, pk):
     cliente = get_object_or_404(Cliente, id=pk)
     vendas = Venda.objects.filter(cliente=cliente).order_by('-data')
     
-    paginator = Paginator(vendas, 9)  # Alterado para 9 vendas por página
+    paginator = Paginator(vendas, 9)  # Mostrar 10 vendas por página
     page_number = request.GET.get('page')
     
     try:
         page_obj = paginator.page(page_number)
     except PageNotAnInteger:
+        # Se a página não for um inteiro, exiba a primeira página
         page_obj = paginator.page(1)
     except EmptyPage:
+        # Se a página estiver fora do intervalo (por exemplo, 9999), exiba a última página
         page_obj = paginator.page(paginator.num_pages)
     
     return render(request, 'clientes/detalhe_cliente.html', {
@@ -57,7 +59,7 @@ def vendas_cliente(request, pk):
     cliente = get_object_or_404(Cliente, id=pk)
     vendas = Venda.objects.filter(cliente=cliente).order_by('-data')
     
-    paginator = Paginator(vendas, 10)  # Mostrar 10 vendas por página
+    paginator = Paginator(vendas, 9)  # Mostrar 10 vendas por página
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
