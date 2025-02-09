@@ -1,26 +1,43 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from .models import Venda, ItemVenda
 from estoque.models import Produto
 from clientes.models import Cliente
 from decimal import Decimal
-
-# from django.contrib.auth.decorators import login_required
+import json
 
 def lista_produtos(request):
     produtos = Produto.objects.filter(quantidade__gt=0)
-    return render(request, 'vendas/lista_produtos.html', {'produtos': produtos})
+    return render(request, 'vendas/catalogo_produtos.html', {'produtos': produtos})
 
+def revisar_carrinho(request):
+    return render(request, 'vendas/revisar_carrinho.html')
+
+@require_http_methods(["GET", "POST"])
 def iniciar_venda(request):
     if request.method == 'POST':
         cliente_id = request.POST.get('cliente')
         cliente = get_object_or_404(Cliente, id=cliente_id)
         venda = Venda.objects.create(cliente=cliente)
         return redirect('vendas:adicionar_produto', venda_id=venda.id)
-    clientes = Cliente.objects.all()
-    return render(request, 'vendas/iniciar_venda.html', {'clientes': clientes})
+    else:
+        clientes = Cliente.objects.all()
+        return render(request, 'vendas/iniciar_venda.html', {'clientes': clientes})
 
-# Continue removendo @login_required de todas as outras funções...
+def selecionar_cliente(request, venda_id):
+    venda = get_object_or_404(Venda, id=venda_id, finalizada=False)
+    if request.method == 'POST':
+        cliente_id = request.POST.get('cliente')
+        cliente = get_object_or_404(Cliente, id=cliente_id)
+        venda.cliente = cliente
+        venda.save()
+        return redirect('vendas:finalizar_venda', venda_id=venda.id)
+    
+    clientes = Cliente.objects.all()
+    return render(request, 'vendas/selecionar_cliente.html', {'venda': venda, 'clientes': clientes})
 
 def adicionar_produto(request, venda_id):
     venda = get_object_or_404(Venda, id=venda_id, finalizada=False)
@@ -54,8 +71,6 @@ def finalizar_venda(request, venda_id):
 def detalhe_venda(request, venda_id):
     venda = get_object_or_404(Venda, id=venda_id)
     return render(request, 'vendas/detalhe_venda.html', {'venda': venda})
-
-
 
 def lista_vendas(request):
     vendas = Venda.objects.all().order_by('-data')
