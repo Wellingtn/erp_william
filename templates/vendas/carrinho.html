@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Seu Carrinho - Angels ERP{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cart-container {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .cart-items {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    .cart-item {
+        display: flex;
+        padding: 1rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .cart-item:last-child {
+        border-bottom: none;
+    }
+    .item-image {
+        width: 100px;
+        height: 100px;
+        margin-right: 1rem;
+        background-color: #f3f4f6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .item-details {
+        flex-grow: 1;
+    }
+    .item-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2d3748;
+    }
+    .item-price {
+        font-weight: 600;
+        color: #4a5568;
+    }
+    .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .quantity-input {
+        width: 50px;
+        text-align: center;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 0.25rem;
+    }
+    .remove-item {
+        color: #e53e3e;
+        cursor: pointer;
+    }
+    .cart-summary {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        padding: 1rem;
+    }
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    .summary-total {
+        font-weight: 700;
+        font-size: 1.2rem;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 0.5rem;
+    }
+    .checkout-button {
+        background-color: #f0c14b;
+        border-color: #a88734 #9c7e31 #846a29;
+        color: #111;
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 1rem;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .checkout-button:hover {
+        background-color: #f4d078;
+    }
+    .continue-shopping {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    .shipping-input {
+        width: 80px;
+        text-align: right;
+        border: 1px solid #e2e8f0;
+        border-radius: 4px;
+        padding: 0.25rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-800">Seu Carrinho</h1>
+    
+    <div class="cart-container">
+        <div class="cart-items" id="cart-items">
+            <!-- Cart items will be dynamically inserted here -->
+        </div>
+        
+        <div class="cart-summary">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span id="subtotal">R$ 0,00</span>
+            </div>
+            <div class="summary-row">
+                <span>Frete:</span>
+                <div>
+                    R$ <input type="number" id="shipping-input" class="shipping-input" value="0.00" min="0" step="0.01">
+                </div>
+            </div>
+            <div class="summary-row summary-total">
+                <span>Total:</span>
+                <span id="total">R$ 0,00</span>
+            </div>
+            <button id="checkout-button" class="checkout-button mt-4">
+                Finalizar Compra
+            </button>
+            <div class="continue-shopping">
+                <a href="{% url 'vendas:adicionar_produto' venda_id=venda.id %}" class="text-blue-600 hover:text-blue-800">
+                    Continuar Comprando
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cartItemsContainer = document.getElementById('cart-items');
+    const subtotalElement = document.getElementById('subtotal');
+    const shippingElement = document.getElementById('shipping');
+    const totalElement = document.getElementById('total');
+    const checkoutButton = document.getElementById('checkout-button');
+    const shippingInput = document.getElementById('shipping-input');
+    
+    function loadCartItems() {
+        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        cartItemsContainer.innerHTML = '';
+        let subtotal = 0;
+        
+        if (cartItems.length === 0) {
+            cartItemsContainer.innerHTML = '<p class="text-center py-4">Seu carrinho está vazio.</p>';
+            return;
+        }
+        
+        cartItems.forEach((item, index) => {
+            fetch(`/vendas/api/produto/${item.productId}/`)
+                .then(response => response.json())
+                .then(product => {
+                    const itemSubtotal = product.preco * item.quantidade;
+                    subtotal += itemSubtotal;
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'cart-item';
+                    itemElement.innerHTML = `
+                        <div class="item-image flex items-center justify-center bg-gray-200">
+                            ${product.imagem 
+                                ? `<img src="${product.imagem}" alt="${product.nome}" class="w-full h-full object-cover">`
+                                : `<svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                               </svg>`
+                            }
+                        </div>
+                        <div class="item-details">
+                            <h3 class="item-name">${product.nome}</h3>
+                            <p class="item-price">R$ ${product.preco.toFixed(2)}</p>
+                            <div class="item-actions">
+                                <input type="number" class="quantity-input" value="${item.quantidade}" min="1" max="${product.quantidade}" data-product-id="${item.productId}">
+                                <span class="remove-item" data-product-id="${item.productId}">Remover</span>
+                            </div>
+                        </div>
+                        <div class="item-subtotal">
+                            <p class="font-semibold">R$ ${itemSubtotal.toFixed(2)}</p>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemElement);
+                    
+                    updateSummary(subtotal);
+                });
+        });
+    }
+    
+    function updateSummary(subtotal) {
+        const shipping = parseFloat(document.getElementById('shipping-input').value) || 0;
+        const total = subtotal + shipping;
+        
+        subtotalElement.textContent = `R$ ${subtotal.toFixed(2)}`;
+        totalElement.textContent = `R$ ${total.toFixed(2)}`;
+    }
+    
+    function updateCartItem(productId, newQuantity) {
+        let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        const itemIndex = cartItems.findIndex(item => item.productId === productId);
+        
+        if (itemIndex !== -1) {
+            cartItems[itemIndex].quantidade = newQuantity;
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            loadCartItems();
+        }
+    }
+    
+    function removeCartItem(productId) {
+        let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        cartItems = cartItems.filter(item => item.productId !== productId);
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
+        loadCartItems();
+    }
+    
+    cartItemsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('quantity-input')) {
+            const productId = e.target.dataset.productId;
+            const newQuantity = parseInt(e.target.value);
+            updateCartItem(productId, newQuantity);
+        }
+    });
+    
+    cartItemsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item')) {
+            const productId = e.target.dataset.productId;
+            removeCartItem(productId);
+        }
+    });
+    
+    shippingInput.addEventListener('change', function() {
+        const subtotal = parseFloat(subtotalElement.textContent.replace('R$ ', '')) || 0;
+        updateSummary(subtotal);
+    });
+    
+    checkoutButton.addEventListener('click', function() {
+        const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+        if (cartItems.length === 0) {
+            alert('Seu carrinho está vazio!');
+            return;
+        }
+        
+        const frete = parseFloat(document.getElementById('shipping-input').value) || 0;
+        
+        fetch('{% url "vendas:finalizar_compra" venda_id=venda.id %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ 
+                items: cartItems,
+                frete: frete
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                localStorage.removeItem('cartItems');
+                window.location.href = data.redirect_url;
+            } else {
+                alert('Erro ao finalizar a compra: ' + data.error);
+            }
+        });
+    });
+    
+    loadCartItems();
+});
+</script>
+{% endblock %}
+

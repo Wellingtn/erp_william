@@ -1,41 +1,57 @@
 {% extends 'base.html' %}
+{% load venda_filters %}
 
 {% block title %}Detalhes da Venda - Angels ERP{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Detalhes da Venda #{{ venda.id }}</h1>
-    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-semibold mb-4">Informações da Venda</h2>
-        <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
-        <p><strong>Vendedor:</strong> {{ venda.vendedor.username }}</p>
-        <p><strong>Data:</strong> {{ venda.data }}</p>
-        <p><strong>Total:</strong> R$ {{ venda.total }}</p>
-        <p><strong>Status:</strong> {% if venda.finalizada %}Finalizada{% else %}Em andamento{% endif %}</p>
-    </div>
-    <div class="bg-white shadow-md rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Itens da Venda</h2>
-        <table class="w-full">
-            <thead>
-                <tr>
-                    <th class="text-left">Produto</th>
-                    <th class="text-left">Quantidade</th>
-                    <th class="text-left">Preço Unitário</th>
-                    <th class="text-left">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in venda.itens.all %}
-                <tr>
-                    <td>{{ item.produto.nome }}</td>
-                    <td>{{ item.quantidade }}</td>
-                    <td>R$ {{ item.preco_unitario }}</td>
-                    <td>R$ {{ item.subtotal }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+  <h1 class="text-3xl font-bold mb-6">Detalhes da Venda #{{ venda.id }}</h1>
+  <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+      <h2 class="text-xl font-semibold mb-4">Informações da Venda</h2>
+      <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
+      <p><strong>Data:</strong> {{ venda.data }}</p>
+      <p><strong>Frete:</strong> R$ {{ venda.frete|floatformat:2 }}</p>
+      <p><strong>Total:</strong> R$ {{ venda.total }}</p>
+      <p><strong>Status:</strong> {% if venda.finalizada %}Finalizada{% else %}Em andamento{% endif %}</p>
+  </div>
+  <div class="bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Itens da Venda</h2>
+      <table class="w-full">
+          <thead>
+              <tr>
+                  <th class="text-left">Produto</th>
+                  <th class="text-left">Quantidade</th>
+                  <th class="text-left">Preço Unitário</th>
+                  <th class="text-left">Subtotal</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for item in venda.itens.all %}
+              <tr>
+                  <td>{{ item.produto.nome }}</td>
+                  <td>{{ item.quantidade }}</td>
+                  <td>R$ {{ item.preco_unitario }}</td>
+                  <td>R$ {{ item.subtotal }}</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+  <div class="mt-6 bg-white shadow-md rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Resumo da Venda</h2>
+      <div class="flex justify-between items-center">
+          <span>Subtotal:</span>
+          <span>R$ {{ venda.total|sub:venda.frete|floatformat:2 }}</span>
+      </div>
+      <div class="flex justify-between items-center mt-2">
+          <span>Frete:</span>
+          <span>R$ {{ venda.frete|floatformat:2 }}</span>
+      </div>
+      <div class="flex justify-between items-center mt-2 text-lg font-bold">
+          <span>Total:</span>
+          <span>R$ {{ venda.total }}</span>
+      </div>
+  </div>
 </div>
 {% endblock %}
 

@@ -8,6 +8,7 @@ class Venda(models.Model):
     data = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     finalizada = models.BooleanField(default=False)
+    frete = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return f"Venda {self.id} para {self.cliente.nome}"
@@ -24,7 +25,7 @@ class Venda(models.Model):
         self.atualizar_total()
 
     def atualizar_total(self):
-        self.total = sum(item.subtotal for item in self.itens.all())
+        self.total = sum(item.subtotal for item in self.itens.all()) + self.frete
         self.save()
 
 class ItemVenda(models.Model):

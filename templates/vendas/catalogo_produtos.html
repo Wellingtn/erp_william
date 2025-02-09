@@ -15,115 +15,203 @@
         border-radius: 0.5rem;
         overflow: hidden;
         transition: all 0.3s ease;
+        background-color: #fff;
+        position: relative;
+        display: flex;
+        flex-direction: column;
     }
     .product-card:hover {
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         transform: translateY(-5px);
     }
-    #carrinho {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 300px;
-        max-height: 400px;
-        overflow-y: auto;
-        z-index: 1000;
+    .product-image {
+        height: 200px;
+        width: 100%;
+        object-fit: cover;
+    }
+    .product-details {
+        padding: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .product-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 0.5rem;
+    }
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #9333ea;
+        margin-bottom: 0.5rem;
+    }
+    .product-stock {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-bottom: 1rem;
+    }
+    .add-to-cart-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .quantity-input {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.25rem;
+    }
+    .add-to-cart-button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #9333ea;
+        color: white;
+        border: none;
+        border-radius: 0.25rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .add-to-cart-button:hover {
+        background-color: #7e22ce;
+    }
+    .product-code {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+    }
+    .search-bar {
+        max-width: 600px;
+        margin: 0 auto 2rem;
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Catálogo de Produtos</h1>
+    <div class="fixed bottom-4 right-4 z-50">
+        <a href="{% url 'vendas:ver_carrinho' venda_id=venda.id %}" class="bg-purple-600 text-white py-2 px-4 rounded-full hover:bg-purple-700 transition duration-300 flex items-center">
+            <i class="fas fa-shopping-cart mr-2"></i>
+            Ver Carrinho
+            <span id="cart-count" class="ml-2 bg-white text-purple-600 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">0</span>
+        </a>
+    </div>
+    <h1 class="text-4xl font-bold mb-8 text-center text-purple-800">Catálogo de Produtos</h1>
     
-    <div class="product-grid">
+    <div class="search-bar">
+        <div class="relative">
+            <input type="text" id="productSearch" placeholder="Pesquisar produtos..." class="w-full px-4 py-2 pl-10 rounded-lg border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent">
+            <i class="fas fa-search absolute left-3 top-3 text-purple-400"></i>
+        </div>
+    </div>
+
+    <div class="product-grid" id="productGrid">
         {% for produto in produtos %}
-        <div class="product-card bg-white">
-            <img src="{% static 'images/placeholder.jpg' %}" alt="{{ produto.nome }}" class="w-full h-48 object-cover">
-            <div class="p-4">
-                <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ produto.nome }}</h2>
-                <p class="text-gray-600 mb-4">{{ produto.descricao|truncatewords:20 }}</p>
-                <div class="flex justify-between items-center">
-                    <span class="text-2xl font-bold text-purple-600">R$ {{ produto.preco }}</span>
-                    <span class="text-sm text-gray-500">Estoque: {{ produto.quantidade }}</span>
-                </div>
-                <button onclick="adicionarAoCarrinho({{ produto.id }}, '{{ produto.nome }}', {{ produto.preco }})" class="mt-4 w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-300">
-                    Adicionar ao Carrinho
-                </button>
+        <div class="product-card shadow-md" data-name="{{ produto.nome|lower }}">
+            {% if produto.imagem %}
+    <img src="{{ produto.imagem.url }}" alt="{{ produto.nome }}" class="product-image">
+{% else %}
+    <div class="product-image flex items-center justify-center bg-gray-200">
+        <svg class="w-24 h-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+    </div>
+{% endif %}
+            <div class="product-details">
+                <h2 class="product-name">{{ produto.nome }}</h2>
+                <p class="product-price">R$ {{ produto.preco }}</p>
+                <p class="product-stock">Estoque: {{ produto.quantidade }}</p>
+                <form class="add-to-cart-form" data-product-id="{{ produto.id }}">
+                    {% csrf_token %}
+                    <input type="number" name="quantidade" value="1" min="1" max="{{ produto.quantidade }}" class="quantity-input">
+                    <button type="submit" class="add-to-cart-button">
+                        Adicionar ao Carrinho
+                    </button>
+                </form>
             </div>
         </div>
         {% empty %}
-        <p class="text-gray-600">Nenhum produto disponível no momento.</p>
+        <div class="col-span-full text-center text-gray-500">
+            <i class="fas fa-box-open text-5xl mb-4"></i>
+            <p>Nenhum produto encontrado no catálogo.</p>
+        </div>
         {% endfor %}
     </div>
-</div>
-
-<div id="carrinho" class="bg-white border border-gray-200 rounded-lg shadow-lg p-4 hidden">
-    <h2 class="text-lg font-semibold mb-2">Carrinho de Compras</h2>
-    <ul id="itens-carrinho" class="mb-4"></ul>
-    <p class="font-bold">Total: R$ <span id="total-carrinho">0.00</span></p>
-    <button onclick="finalizarCompra()" class="mt-4 w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition duration-300">
-        Finalizar Compra
-    </button>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-
-function adicionarAoCarrinho(produtoId, nome, preco) {
-    const item = carrinho.find(i => i.id === produtoId);
-    if (item) {
-        item.quantidade += 1;
-    } else {
-        carrinho.push({id: produtoId, nome: nome, preco: preco, quantidade: 1});
-    }
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
-    atualizarCarrinho();
+function updateCartCount() {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const cartCount = cartItems.reduce((total, item) => total + item.quantidade, 0);
+    document.getElementById('cart-count').textContent = cartCount;
 }
 
-function atualizarCarrinho() {
-    const carrinhoElement = document.getElementById('carrinho');
-    const itensCarrinho = document.getElementById('itens-carrinho');
-    const totalCarrinho = document.getElementById('total-carrinho');
-    
-    itensCarrinho.innerHTML = '';
-    let total = 0;
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount();
 
-    carrinho.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = `${item.nome} - ${item.quantidade}x R$ ${item.preco}`;
-        const removerBtn = document.createElement('button');
-        removerBtn.textContent = 'Remover';
-        removerBtn.className = 'ml-2 text-red-500 hover:text-red-700';
-        removerBtn.onclick = () => removerDoCarrinho(item.id);
-        li.appendChild(removerBtn);
-        itensCarrinho.appendChild(li);
-        total += item.preco * item.quantidade;
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const productId = this.dataset.productId;
+            const quantidade = parseInt(this.querySelector('input[name="quantidade"]').value);
+            
+            let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+            const existingItem = cartItems.find(item => item.productId === productId);
+            
+            if (existingItem) {
+                existingItem.quantidade += quantidade;
+            } else {
+                cartItems.push({ productId, quantidade });
+            }
+            
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+            updateCartCount();
+            
+            alert('Produto adicionado ao carrinho!');
+        });
     });
 
-    totalCarrinho.textContent = total.toFixed(2);
-    carrinhoElement.classList.toggle('hidden', carrinho.length === 0);
-}
+    const searchInput = document.getElementById('productSearch');
+    const productGrid = document.getElementById('productGrid');
+    const productCards = document.querySelectorAll('.product-card');
 
-function removerDoCarrinho(produtoId) {
-    carrinho = carrinho.filter(item => item.id !== produtoId);
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
-    atualizarCarrinho();
-}
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        let hasResults = false;
 
-function finalizarCompra() {
-    if (carrinho.length === 0) {
-        alert('Seu carrinho está vazio!');
-        return;
-    }
+        productCards.forEach(card => {
+            const productName = card.dataset.name;
+            if (productName.includes(searchTerm)) {
+                card.style.display = 'block';
+                hasResults = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
 
-    window.location.href = '/vendas/iniciar/';
-}
-
-// Inicializar o carrinho ao carregar a página
-document.addEventListener('DOMContentLoaded', atualizarCarrinho);
+        // Show "no results" message if no products match the search
+        let noResultsMessage = productGrid.querySelector('.no-results');
+        if (!hasResults) {
+            if (!noResultsMessage) {
+                noResultsMessage = document.createElement('div');
+                noResultsMessage.className = 'no-results col-span-full text-center text-gray-500 py-8';
+                noResultsMessage.innerHTML = '<i class="fas fa-search text-5xl mb-4"></i><p>Nenhum produto encontrado com esse termo de pesquisa.</p>';
+                productGrid.appendChild(noResultsMessage);
+            }
+        } else if (noResultsMessage) {
+            noResultsMessage.remove();
+        }
+    });
+});
 </script>
 {% endblock %}
 
