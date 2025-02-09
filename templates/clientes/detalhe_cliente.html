@@ -1,53 +1,165 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Detalhes do Cliente - Angels ERP{% endblock %}
 
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<style>
+    .modal {
+        transition: opacity 0.25s ease;
+    }
+    body.modal-active {
+        overflow-x: hidden;
+        overflow-y: visible !important;
+    }
+    .venda-card {
+        transition: all 0.3s ease;
+    }
+    .venda-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Detalhes do Cliente: {{ cliente.nome }}</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div>
-            <p><strong>Nome:</strong> {{ cliente.nome }}</p>
-            <p><strong>Email:</strong> {{ cliente.email }}</p>
-        </div>
-        <div>
-            <p><strong>Telefone:</strong> {{ cliente.telefone }}</p>
-            <p><strong>Endereço:</strong> {{ cliente.endereco }}</p>
-        </div>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Detalhes do Cliente</h1>
+    
+    <!-- Informações básicas do cliente -->
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Informações Pessoais</h2>
+        <p><strong>Nome:</strong> {{ cliente.nome }}</p>
+        <p><strong>E-mail:</strong> {{ cliente.email }}</p>
+        <p><strong>Telefone:</strong> {{ cliente.telefone }}</p>
+        <p><strong>Endereço:</strong> {{ cliente.endereco }}</p>
     </div>
-    <h3 class="text-xl font-semibold mb-2 text-purple-800">Histórico de Compras</h3>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-purple-100">
-                    <th class="p-3">Data</th>
-                    <th class="p-3">Vendedora</th>
-                    <th class="p-3">Total</th>
-                    <th class="p-3">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for venda in vendas %}
-                <tr class="border-b border-purple-200 hover:bg-purple-50">
-                    <td class="p-3">{{ venda.data|date:"d/m/Y H:i" }}</td>
-                    <td class="p-3">{{ venda.vendedora.nome }}</td>
-                    <td class="p-3">R$ {{ venda.total }}</td>
-                    <td class="p-3">
-                        <a href="{% url 'vendas:detalhe_venda' venda.id %}" class="text-blue-600 hover:underline">Detalhes</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="p-3 text-center">Nenhuma compra registrada.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    <div class="mt-6">
-        <a href="{% url 'clientes:lista_clientes' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mr-2">Voltar para Lista de Clientes</a>
-        <a href="{% url 'clientes:editar_cliente' cliente.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-300">Editar Cliente</a>
+
+    <!-- Histórico de vendas -->
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-2xl font-semibold mb-6">Histórico de Vendas</h2>
+        <div id="vendas-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for venda in page_obj %}
+                <div class="venda-card bg-gradient-to-br from-white to-gray-100 border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">Venda #{{ venda.id }}</h3>
+                                <p class="text-sm text-gray-600">{{ venda.data|date:"d/m/Y" }}</p>
+                            </div>
+                            <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800">
+                                Finalizada
+                            </span>
+                        </div>
+                        <div class="mb-4">
+                            <p class="text-3xl font-bold text-purple-600">R$ {{ venda.total }}</p>
+                        </div>
+                        <button onclick="showVendaDetails({{ venda.id }})" class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">
+                            Ver Detalhes
+                        </button>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="col-span-full text-center text-gray-600 italic">Nenhuma venda registrada para este cliente.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Paginação atualizada -->
+        <div class="flex justify-center space-x-2 mt-8">
+            <a href="{% if page_obj.has_previous %}?page=1{% else %}#{% endif %}" 
+               class="px-4 py-2 text-sm rounded-md transition duration-300 {% if page_obj.has_previous %}text-purple-600 bg-purple-100 hover:bg-purple-200{% else %}text-gray-400 bg-gray-100 cursor-not-allowed{% endif %}"
+               {% if not page_obj.has_previous %}aria-disabled="true"{% endif %}>
+                Primeira
+            </a>
+            <a href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}" 
+               class="px-4 py-2 text-sm rounded-md transition duration-300 {% if page_obj.has_previous %}text-purple-600 bg-purple-100 hover:bg-purple-200{% else %}text-gray-400 bg-gray-100 cursor-not-allowed{% endif %}"
+               {% if not page_obj.has_previous %}aria-disabled="true"{% endif %}>
+                Anterior
+            </a>
+            <span class="px-4 py-2 text-sm text-white bg-purple-500 rounded-md">
+                {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            </span>
+            <a href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}" 
+               class="px-4 py-2 text-sm rounded-md transition duration-300 {% if page_obj.has_next %}text-purple-600 bg-purple-100 hover:bg-purple-200{% else %}text-gray-400 bg-gray-100 cursor-not-allowed{% endif %}"
+               {% if not page_obj.has_next %}aria-disabled="true"{% endif %}>
+                Próxima
+            </a>
+            <a href="{% if page_obj.has_next %}?page={{ page_obj.paginator.num_pages }}{% else %}#{% endif %}" 
+               class="px-4 py-2 text-sm rounded-md transition duration-300 {% if page_obj.has_next %}text-purple-600 bg-purple-100 hover:bg-purple-200{% else %}text-gray-400 bg-gray-100 cursor-not-allowed{% endif %}"
+               {% if not page_obj.has_next %}aria-disabled="true"{% endif %}>
+                Última
+            </a>
+        </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center">
+    <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+    
+    <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+        <div class="modal-content py-4 text-left px-6">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center pb-3">
+                <p class="text-2xl font-bold" id="modal-title"></p>
+                <div class="modal-close cursor-pointer z-50">
+                    <svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+                        <path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+                    </svg>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div id="modal-body">
+                <!-- Conteúdo do modal será inserido aqui via JavaScript -->
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex justify-end pt-2">
+                <button class="modal-close px-4 bg-purple-500 p-3 rounded-lg text-white hover:bg-purple-400 transition duration-200">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showVendaDetails(vendaId) {
+        fetch(`/vendas/${vendaId}/detalhes/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modal-title').textContent = `Venda #${data.id}`;
+                let modalContent = `
+                    <p class="mb-2"><strong>Data:</strong> ${data.data}</p>
+                    <p class="mb-2"><strong>Total:</strong> R$ ${data.total}</p>
+                    <p class="mb-4"><strong>Status:</strong> 
+                        <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-200 text-green-800">
+                            Finalizada
+                        </span>
+                    </p>
+                    <h3 class="font-bold mt-4 mb-2">Itens:</h3>
+                    <ul class="list-disc pl-5 space-y-1">
+                `;
+                data.itens.forEach(item => {
+                    modalContent += `<li>${item.produto_nome} - Qtd: ${item.quantidade} - R$ ${item.subtotal}</li>`;
+                });
+                modalContent += '</ul>';
+                document.getElementById('modal-body').innerHTML = modalContent;
+                toggleModal();
+            });
+    }
+
+    function toggleModal() {
+        const modal = document.querySelector('.modal');
+        modal.classList.toggle('opacity-0');
+        modal.classList.toggle('pointer-events-none');
+        document.body.classList.toggle('modal-active');
+    }
+
+    document.querySelectorAll('.modal-close').forEach(elem => {
+        elem.addEventListener('click', toggleModal);
+    });
+</script>
 {% endblock %}
 

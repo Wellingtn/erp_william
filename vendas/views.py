@@ -73,6 +73,26 @@ def detalhe_venda(request, venda_id):
     venda = get_object_or_404(Venda, id=venda_id)
     return render(request, 'vendas/detalhe_venda.html', {'venda': venda})
 
+
+def detalhes_venda(request, venda_id):
+    venda = get_object_or_404(Venda, id=venda_id)
+    data = {
+        'id': venda.id,
+        'data': venda.data.strftime('%d/%m/%Y'),
+        'total': str(venda.total),
+        'finalizada': venda.finalizada,
+        'itens': [
+            {
+                'produto_nome': item.produto.nome,
+                'quantidade': item.quantidade,
+                'subtotal': str(item.subtotal)
+            } for item in venda.itens.all()
+        ]
+    }
+    return JsonResponse(data)
+
+
+
 def lista_vendas(request):
     vendas = Venda.objects.all().order_by('-data')
     return render(request, 'vendas/lista_vendas.html', {'vendas': vendas})
@@ -86,7 +106,6 @@ def finalizar_compra(request, venda_id):
     venda = get_object_or_404(Venda, id=venda_id, finalizada=False)
     data = json.loads(request.body)
     items = data.get('items', [])
-    frete = Decimal(data.get('frete', '0.00'))
     
     try:
         for item in items:
@@ -99,8 +118,6 @@ def finalizar_compra(request, venda_id):
             else:
                 return JsonResponse({'success': False, 'error': f'Estoque insuficiente para {produto.nome}'})
         
-        venda.frete = frete
-        venda.atualizar_total()
         venda.finalizada = True
         venda.save()
         

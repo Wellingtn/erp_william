@@ -12,5 +12,6 @@ urlpatterns = [
     path('<int:venda_id>/carrinho/', views.ver_carrinho, name='ver_carrinho'),
     path('<int:venda_id>/finalizar-compra/', views.finalizar_compra, name='finalizar_compra'),
     path('api/produto/<int:produto_id>/', views.produto_info, name='produto_info'),
+    path('<int:venda_id>/detalhes/', views.detalhes_venda, name='detalhes_venda'),
 ]
 
