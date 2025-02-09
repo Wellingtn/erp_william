@@ -1,48 +1,278 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
 
 {% block title %}Dashboard - Angels ERP{% endblock %}
 
-{% block header %}Dashboard{% endblock %}
-
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-6 text-purple-800">Dashboard</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Card Estoque -->
-        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h3 class="text-xl font-semibold mb-4 text-purple-800">Estoque</h3>
-            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_produtos }}</p>
-            <p class="text-sm text-purple-700">Total de Produtos</p>
-            <p class="text-sm text-red-600 mt-2">{{ produtos_baixo_estoque }} produtos com estoque baixo</p>
-            <a href="{% url 'estoque:lista_produtos' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Estoque</a>
+<div class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-8">Dashboard</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Card Vendas -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Vendas</h3>
+                        <div class="p-3 bg-blue-100 rounded-full">
+                            <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-800 mb-2">{{ total_vendas }}</p>
+                    <p class="text-sm text-gray-600">Total de Vendas</p>
+                    <p class="text-xl font-semibold mt-4 text-blue-600">R$ {{ valor_total_vendas|floatformat:2 }}</p>
+                    <p class="text-sm text-gray-600">Valor Total</p>
+                    <div class="mt-4 text-sm">
+                        {% if vendas_variacao %}
+                            <span class="{% if vendas_variacao > 0 %}text-green-600{% else %}text-red-600{% endif %} font-semibold">
+                                <i class="fas fa-{% if vendas_variacao > 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i>
+                                {{ vendas_variacao|abs }}% em relação ao mês anterior
+                            </span>
+                        {% else %}
+                            <span class="text-gray-500">Dados insuficientes para comparação</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Clientes -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Clientes</h3>
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <i class="fas fa-users text-2xl text-green-600"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-800 mb-2">{{ total_clientes }}</p>
+                    <p class="text-sm text-gray-600">Total de Clientes</p>
+                    <p class="text-xl font-semibold mt-4 text-green-600">{{ novos_clientes }}</p>
+                    <p class="text-sm text-gray-600">Novos este mês</p>
+                    <div class="mt-4 text-sm">
+                        {% if clientes_variacao %}
+                            <span class="{% if clientes_variacao > 0 %}text-green-600{% else %}text-red-600{% endif %} font-semibold">
+                                <i class="fas fa-{% if clientes_variacao > 0 %}arrow-up{% else %}arrow-down{% endif %} mr-1"></i>
+                                {{ clientes_variacao|abs }}% em relação ao mês anterior
+                            </span>
+                        {% else %}
+                            <span class="text-gray-500">Dados insuficientes para comparação</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Estoque -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Estoque</h3>
+                        <div class="p-3 bg-yellow-100 rounded-full">
+                            <i class="fas fa-box text-2xl text-yellow-600"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-800 mb-2">{{ total_produtos }}</p>
+                    <p class="text-sm text-gray-600">Total de Produtos</p>
+                    <p class="text-xl font-semibold mt-4 text-yellow-600">{{ produtos_baixo_estoque }}</p>
+                    <p class="text-sm text-gray-600">Produtos com estoque baixo</p>
+                    <div class="mt-4">
+                        <a href="{% url 'estoque:lista_produtos' %}" class="text-blue-600 hover:text-blue-800 transition-colors duration-300">
+                            Ver detalhes <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Vendedoras -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-gray-800">Vendedoras</h3>
+                        <div class="p-3 bg-purple-100 rounded-full">
+                            <i class="fas fa-user-tie text-2xl text-purple-600"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-gray-800 mb-2">{{ total_vendedoras }}</p>
+                    <p class="text-sm text-gray-600">Total de Vendedoras</p>
+                    <p class="text-xl font-semibold mt-4 text-purple-600">{{ vendedoras_ativas }}</p>
+                    <p class="text-sm text-gray-600">Vendedoras ativas</p>
+                    <div class="mt-4">
+                        <a href="{% url 'vendedoras:lista_vendedoras' %}" class="text-blue-600 hover:text-blue-800 transition-colors duration-300">
+                            Ver detalhes <i class="fas fa-arrow-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Card Vendas -->
-        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h3 class="text-xl font-semibold mb-4 text-purple-800">Vendas</h3>
-            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_vendas }}</p>
-            <p class="text-sm text-purple-700">Total de Vendas</p>
-            <p class="text-sm text-green-600 mt-2">R$ {{ valor_total_vendas|floatformat:2 }} em vendas</p>
-            <a href="{% url 'vendas:lista_vendas' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Vendas</a>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Gráfico de Vendas -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Vendas nos Últimos 30 Dias</h3>
+                <canvas id="vendasChart" width="400" height="200"></canvas>
+            </div>
+
+            <!-- Gráfico de Produtos Mais Vendidos -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Top 5 Produtos Mais Vendidos</h3>
+                <canvas id="produtosChart" width="400" height="200"></canvas>
+            </div>
         </div>
 
-        <!-- Card Vendedoras -->
-        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h3 class="text-xl font-semibold mb-4 text-purple-800">Vendedoras</h3>
-            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_vendedoras }}</p>
-            <p class="text-sm text-purple-700">Total de Vendedoras</p>
-            <a href="{% url 'vendedoras:lista_vendedoras' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Vendedoras</a>
-        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Tabela de Últimas Vendas -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Últimas Vendas</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for venda in ultimas_vendas %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ venda.id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ venda.cliente.nome }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ venda.data|date:"d/m/Y H:i" }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ {{ venda.total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        <!-- Card Clientes -->
-        <div class="bg-purple-100 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h3 class="text-xl font-semibold mb-4 text-purple-800">Clientes</h3>
-            <p class="text-3xl font-bold text-purple-600 mb-2">{{ total_clientes }}</p>
-            <p class="text-sm text-purple-700">Total de Clientes</p>
-            <a href="{% url 'clientes:lista_clientes' %}" class="mt-4 inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Ver Clientes</a>
+            <!-- Tabela de Vendedoras Top -->
+            <div class="bg-white rounded-xl shadow-md p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Top Vendedoras</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendedora</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Vendas</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for vendedora in top_vendedoras %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ vendedora.nome }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ vendedora.total_vendas }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">R$ {{ vendedora.valor_total|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de Vendas
+    var ctxVendas = document.getElementById('vendasChart').getContext('2d');
+    var vendasChart = new Chart(ctxVendas, {
+        type: 'line',
+        data: {
+            labels: {{ dias_vendas|safe }},
+            datasets: [{
+                label: 'Vendas',
+                data: {{ valores_vendas }},
+                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+    // Gráfico de Produtos Mais Vendidos
+    var ctxProdutos = document.getElementById('produtosChart').getContext('2d');
+    var produtosChart = new Chart(ctxProdutos, {
+        type: 'bar',
+        data: {
+            labels: {{ produtos_nomes|safe }},
+            datasets: [{
+                label: 'Quantidade Vendida',
+                data: {{ produtos_quantidades }},
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(139, 92, 246, 0.8)'
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(139, 92, 246, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
 {% endblock %}
 

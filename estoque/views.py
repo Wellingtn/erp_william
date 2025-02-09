@@ -1,11 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.models import F, ExpressionWrapper, DecimalField
 from django.contrib import messages
 from .models import Produto
 from .forms import ProdutoForm
 
 def lista_produtos(request):
-    produtos = Produto.objects.all()
+    produtos = Produto.objects.annotate(
+        valor_total=ExpressionWrapper(
+            F('preco') * F('quantidade'),
+            output_field=DecimalField(max_digits=10, decimal_places=2)
+        )
+    )
     return render(request, 'estoque/lista_produtos.html', {'produtos': produtos})
+
 
 def adicionar_produto(request):
     if request.method == 'POST':

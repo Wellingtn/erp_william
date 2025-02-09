@@ -4,9 +4,6 @@ from estoque.models import Produto
 from vendas.models import Venda
 from vendedoras.models import Vendedora
 from clientes.models import Cliente
-from django.contrib.auth import logout
-
-
 def dashboard(request):
     total_produtos = Produto.objects.count()
     total_vendas = Venda.objects.count()
@@ -28,7 +25,3 @@ def dashboard(request):
     
     return render(request, 'core/dashboard.html', context)
 
-
-def logout_view(request):
-    logout(request)
-    return redirect('core:dashboard')

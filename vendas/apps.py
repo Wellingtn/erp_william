@@ -5,5 +5,6 @@ class VendasConfig(AppConfig):
     name = 'vendas'
 
     def ready(self):
-        import vendas.templatetags.venda_filters
+        # Remove the import of signals for now
+        pass
 

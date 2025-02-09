@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar Produto à Venda - Angels ERP{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Adicionar Produto à Venda #{{ venda.id }}</h1>
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Resumo da Venda</h2>
+        <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
+        <p><strong>Total Atual:</strong> R$ {{ venda.total }}</p>
+    </div>
+    <form method="post" class="bg-white shadow-md rounded-lg p-6">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="produto" class="block text-gray-700 text-sm font-bold mb-2">Selecione o Produto:</label>
+            <select name="produto" id="produto" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                {% for produto in produtos %}
+                <option value="{{ produto.id }}">{{ produto.nome }} - R$ {{ produto.preco }} (Estoque: {{ produto.quantidade }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="quantidade" class="block text-gray-700 text-sm font-bold mb-2">Quantidade:</label>
+            <input type="number" name="quantidade" id="quantidade" min="1" value="1" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+        </div>
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Adicionar Produto
+        </button>
+    </form>
+    <div class="mt-6">
+        <a href="{% url 'vendas:finalizar_venda' venda.id %}" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Finalizar Venda
+        </a>
+    </div>
+</div>
+{% endblock %}
+

@@ -19,12 +19,3 @@ class EstoqueVendedora(models.Model):
     def __str__(self):
         return f"{self.vendedora.nome} - {self.produto.nome}: {self.quantidade}"
 
-class Acerto(models.Model):
-    vendedora = models.ForeignKey(Vendedora, on_delete=models.CASCADE)
-    data = models.DateTimeField(auto_now_add=True)
-    total_vendas = models.DecimalField(max_digits=10, decimal_places=2)
-    comissao = models.DecimalField(max_digits=10, decimal_places=2)
-    
-    def __str__(self):
-        return f"Acerto de {self.vendedora.nome} em {self.data.strftime('%d/%m/%Y')}"
-

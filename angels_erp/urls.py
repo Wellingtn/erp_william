@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
-from core.views import logout_view
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', include('core.urls')),
@@ -9,6 +10,8 @@ urlpatterns = [
     path('vendas/', include('vendas.urls')),
     path('vendedoras/', include('vendedoras.urls')),
     path('clientes/', include('clientes.urls')),
-    path('logout/', logout_view, name='logout'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

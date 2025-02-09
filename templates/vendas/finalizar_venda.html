@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Finalizar Venda - Angels ERP{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Finalizar Venda #{{ venda.id }}</h1>
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Resumo da Venda</h2>
+        <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
+        <p><strong>Total:</strong> R$ {{ venda.total }}</p>
+        <h3 class="text-lg font-semibold mt-4 mb-2">Itens:</h3>
+        <ul>
+            {% for item in venda.itens.all %}
+            <li>{{ item.quantidade }}x {{ item.produto.nome }} - R$ {{ item.subtotal }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <form method="post" class="bg-white shadow-md rounded-lg p-6">
+        {% csrf_token %}
+        <p class="mb-4">Tem certeza que deseja finalizar esta venda?</p>
+        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Confirmar e Finalizar Venda
+        </button>
+    </form>
+</div>
+{% endblock %}
+

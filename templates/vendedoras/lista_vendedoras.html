@@ -1,41 +1,167 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}Vendedoras - Angels ERP{% endblock %}
 
-{% block header %}Vendedoras{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/dataTables.tailwindcss.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.tailwindcss.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.7/css/responsive.tailwindcss.min.css">
+<style>
+    #vendedorasTable_wrapper {
+        width: 100% !important;
+    }
+    .dataTables_scroll {
+        width: 100% !important;
+    }
+    .dataTables_scrollBody {
+        width: 100% !important;
+    }
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        @apply border border-gray-300 rounded-md shadow-sm focus:ring-purple-500 focus:border-purple-500 px-3 py-2;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        @apply px-3 py-1 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50;
+    }
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        @apply z-10 bg-purple-50 border-purple-500 text-purple-600;
+    }
+    .dt-buttons .btn {
+        @apply inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Lista de Vendedoras</h2>
-    <a href="{% url 'vendedoras:adicionar_vendedora' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mb-4 inline-block">Adicionar Vendedora</a>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-purple-100">
-                    <th class="p-3">Nome</th>
-                    <th class="p-3">Telefone</th>
-                    <th class="p-3">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for vendedora in vendedoras %}
-                <tr class="border-b border-purple-200 hover:bg-purple-50">
-                    <td class="p-3">{{ vendedora.nome }}</td>
-                    <td class="p-3">{{ vendedora.telefone }}</td>
-                    <td class="p-3">
-                        <a href="{% url 'vendedoras:editar_vendedora' vendedora.id %}" class="text-blue-600 hover:underline mr-2">Editar</a>
-                        <a href="{% url 'vendedoras:detalhe_vendedora' vendedora.id %}" class="text-green-600 hover:underline mr-2">Detalhes</a>
-                        <a href="{% url 'vendedoras:realizar_acerto' vendedora.id %}" class="text-purple-600 hover:underline">Acerto</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="p-3 text-center">Nenhuma vendedora cadastrada.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="w-full">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="p-6 bg-purple-600 text-white flex justify-between items-center">
+            <h1 class="text-2xl font-bold">Catálogo de Vendedoras</h1>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <input type="text" id="pesquisar" placeholder="Pesquisar..." class="w-64 pl-10 pr-4 py-2 rounded-lg border border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent bg-purple-700 text-white placeholder-purple-300">
+                    <div class="absolute left-3 top-2.5">
+                        <i class="fas fa-search text-purple-300"></i>
+                    </div>
+                </div>
+                <a href="{% url 'vendedoras:adicionar_vendedora' %}" class="bg-white text-purple-600 hover:bg-purple-100 font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
+                    <i class="fas fa-plus mr-2"></i>Nova Vendedora
+                </a>
+            </div>
+        </div>
+        <div class="w-full overflow-x-auto">
+            <table id="vendedorasTable" class="w-full">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2 text-left">Nome</th>
+                        <th class="px-4 py-2 text-left">Telefone</th>
+                        <th class="px-4 py-2 text-left">Email</th>
+                        <th class="px-4 py-2 text-left">Cidade</th>
+                        <th class="px-4 py-2 text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for vendedora in vendedoras %}
+                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <td class="px-4 py-2 font-medium">{{ vendedora.nome }}</td>
+                        <td class="px-4 py-2">{{ vendedora.telefone }}</td>
+                        <td class="px-4 py-2">{{ vendedora.email }}</td>
+                        <td class="px-4 py-2">{{ vendedora.cidade }} - {{ vendedora.uf }}</td>
+                        <td class="px-4 py-2 text-center">
+                            <a href="{% url 'vendedoras:detalhe_vendedora' vendedora.id %}" class="text-indigo-600 hover:text-indigo-900 mr-2 transition-colors duration-200" title="Detalhes">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'vendedoras:editar_vendedora' vendedora.id %}" class="text-green-600 hover:text-green-900 mr-2 transition-colors duration-200" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.10.24/js/dataTables.tailwindcss.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.tailwindcss.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.html5.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/buttons.print.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.2.7/js/dataTables.responsive.min.js"></script>
+<script>
+$(document).ready(function() {
+    var table = $('#vendedorasTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.10.24/i18n/Portuguese-Brasil.json'
+        },
+        columnDefs: [
+            { targets: [4], orderable: false }
+        ],
+        order: [[0, 'asc']],
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+        responsive: true,
+        dom: '<"flex justify-between items-center mb-4"lf>rt<"flex justify-between items-center mt-4"ip><"clear">',
+        buttons: [
+            {
+                extend: 'collection',
+                text: '<i class="fas fa-download mr-2"></i>Exportar',
+                buttons: [
+                    {
+                        extend: 'copy',
+                        text: '<i class="fas fa-copy mr-2"></i>Copiar',
+                        className: 'btn'
+                    },
+                    {
+                        extend: 'csv',
+                        text: '<i class="fas fa-file-csv mr-2"></i>CSV',
+                        className: 'btn'
+                    },
+                    {
+                        extend: 'excel',
+                        text: '<i class="fas fa-file-excel mr-2"></i>Excel',
+                        className: 'btn'
+                    },
+                    {
+                        extend: 'pdf',
+                        text: '<i class="fas fa-file-pdf mr-2"></i>PDF',
+                        className: 'btn'
+                    },
+                    {
+                        extend: 'print',
+                        text: '<i class="fas fa-print mr-2"></i>Imprimir',
+                        className: 'btn'
+                    }
+                ],
+                className: 'btn'
+            }
+        ],
+        scrollX: true,
+        scrollCollapse: true,
+        autoWidth: true,
+    });
+
+    // Add export buttons to the page
+    table.buttons().container().appendTo('#vendedorasTable_wrapper .dataTables_length');
+
+    // Use the custom search input
+    $('#pesquisar').keyup(function(){
+        table.search($(this).val()).draw() ;
+    })
+
+    // Ajusta a largura da tabela quando a janela é redimensionada
+    $(window).on('resize', function () {
+        table.columns.adjust().draw();
+    });
+});
+</script>
 {% endblock %}
 

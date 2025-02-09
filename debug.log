@@ -1,37 +1,6 @@
-POST data: <QueryDict: {'csrfmiddlewaretoken': ['Qp19hCrRVn69m4ZPDqmXcDnycP4ni3grwfQo3mjCCVVeiU1dP7nUUjNvT7qVBc3E'], 'cliente': ['1'], 'itemvenda_set-TOTAL_FORMS': ['1'], 'itemvenda_set-INITIAL_FORMS': ['0'], 'itemvenda_set-MIN_NUM_FORMS': ['0'], 'itemvenda_set-MAX_NUM_FORMS': ['1000'], 'itemvenda_set-0-produto': ['1'], 'itemvenda_set-0-quantidade': ['5'], 'itemvenda_set-0-preco_unitario': ['15'], 'itemvenda_set-0-id': [''], 'itemvenda_set-0-venda': [''], 'itemvenda_set-1-produto': ['1'], 'itemvenda_set-1-quantidade': ['5'], 'itemvenda_set-1-preco_unitario': ['20'], 'itemvenda_set-1-id': [''], 'itemvenda_set-1-venda': ['']}>
-Form and formset are valid
-Venda saved with id: 8
-Formset before saving: [<ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>]
-Itens before saving: [<ItemVenda: 5x Marcela na Venda 8>]
-Item saved: 7, produto: Marcela, quantidade: 5, preço: 15
-Venda updated with total: 75.00
-POST data: <QueryDict: {'csrfmiddlewaretoken': ['Q1QEWDMDOniWpg3JGLUsUppRiylcrqi5wRFTInEovV71l657SsVpC5POZQHKKz5i'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['2'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['1'], 'itens-0-quantidade': ['5'], 'itens-0-preco_unitario': [''], 'itens-0-id': [''], 'itens-0-venda': [''], 'itens-1-produto': ['1'], 'itens-1-quantidade': ['5'], 'itens-1-preco_unitario': [''], 'itens-1-id': [''], 'itens-1-venda': [''], 'itens-2-produto': ['1'], 'itens-2-quantidade': ['5'], 'itens-2-preco_unitario': [''], 'itens-2-id': [''], 'itens-2-venda': ['']}>
+POST data: <QueryDict: {'csrfmiddlewaretoken': ['M3rK8HCL7M6yjxL5tHzaeZmEDhn0gHaIsTgZUruwOkVDfnNtFoA7WFMBkzJyzQXV'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['2'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['2'], 'itens-0-quantidade': ['5'], 'itens-0-preco_unitario': [''], 'itens-1-produto': ['2'], 'itens-1-quantidade': ['5'], 'itens-1-preco_unitario': ['']}>
 Form errors: 
 Formset errors: [{'preco_unitario': ['Este campo é obrigatório.']}, {'preco_unitario': ['Este campo é obrigatório.']}]
-POST data: <QueryDict: {'csrfmiddlewaretoken': ['iXygOPjISP7hlR6nb8WmvTEg9xWP07T5YNnvAzbtznWmhH8LnPXjdz4dQPinjgGi'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['2'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['1'], 'itens-0-quantidade': ['5'], 'itens-0-preco_unitario': [''], 'itens-0-DELETE': ['on'], 'itens-0-id': [''], 'itens-0-venda': [''], 'itens-1-produto': ['1'], 'itens-1-quantidade': ['5'], 'itens-1-preco_unitario': [''], 'itens-1-DELETE': ['on'], 'itens-1-id': [''], 'itens-1-venda': ['']}>
+POST data: <QueryDict: {'csrfmiddlewaretoken': ['sG9WZJD0EZ6gztomDVFCp8duFBqddlam8wYbLtvLlxVlvjqKPCGz7ODrmTMLwuXz'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['1'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['1'], 'itens-0-quantidade': ['15'], 'itens-0-preco_unitario': ['']}>
 Form errors: 
-Formset errors: []
-POST data: <QueryDict: {'csrfmiddlewaretoken': ['2eAOUlC4xbeNvfLeMav8PISDPQYZCAC0I4p3G5uPeJ3Sr5NCYRw5xoiAw8kxVJpd'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['2'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['1'], 'itens-0-quantidade': ['5'], 'itens-0-preco_unitario': ['55.90'], 'itens-0-id': [''], 'itens-0-venda': [''], 'itens-1-produto': ['1'], 'itens-1-quantidade': ['10'], 'itens-1-preco_unitario': ['55.90'], 'itens-1-id': [''], 'itens-1-venda': ['']}>
-Form and formset are valid
-Venda saved with id: 10
-Formset before saving: [<ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>, <ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>]
-Itens before saving: [<ItemVenda: 5x Marcela na Venda 10>, <ItemVenda: 10x Marcela na Venda 10>]
-Item saved: 11, produto: Marcela, quantidade: 5, preço: 55.90
-Item saved: 12, produto: Marcela, quantidade: 10, preço: 55.90
-Venda updated with total: 838.50
-POST data: <QueryDict: {'csrfmiddlewaretoken': ['FVD9EwEhj5WKxa7yfuISPvokcY0QDu8AlLsoqgw20DLPt09WrbJPxbOhTgmoWDVN'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['2'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['1'], 'itens-0-quantidade': ['5'], 'itens-0-preco_unitario': ['55.90'], 'itens-0-id': [''], 'itens-0-venda': [''], 'itens-1-produto': ['1'], 'itens-1-quantidade': ['15'], 'itens-1-preco_unitario': ['55.90'], 'itens-1-id': [''], 'itens-1-venda': ['']}>
-Form and formset are valid
-Venda saved with id: 11
-Formset before saving: [<ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>, <ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>]
-Itens before saving: [<ItemVenda: 5x Marcela na Venda 11>, <ItemVenda: 15x Marcela na Venda 11>]
-Item saved: 13, produto: Marcela, quantidade: 5, preço: 55.90
-Item saved: 14, produto: Marcela, quantidade: 15, preço: 55.90
-Venda updated with total: 1118.00
-POST data: <QueryDict: {'csrfmiddlewaretoken': ['JEhRjhwoT6JS48gCkC6BMde37tWNxNi6pu6651o9AEyX0Yi0wj7yuTE0OLilQW5j'], 'cliente': ['1'], 'itens-TOTAL_FORMS': ['2'], 'itens-INITIAL_FORMS': ['0'], 'itens-MIN_NUM_FORMS': ['1'], 'itens-MAX_NUM_FORMS': ['1000'], 'itens-0-produto': ['2'], 'itens-0-quantidade': ['15'], 'itens-0-preco_unitario': ['65.00'], 'itens-0-id': [''], 'itens-0-venda': [''], 'itens-1-produto': ['1'], 'itens-1-quantidade': ['20'], 'itens-1-preco_unitario': ['55.90'], 'itens-1-id': [''], 'itens-1-venda': ['']}>
-Form and formset are valid
-Venda saved with id: 12
-Formset before saving: [<ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>, <ItemVendaForm bound=True, valid=True, fields=(produto;quantidade;preco_unitario;id;DELETE;venda)>]
-Itens before saving: [<ItemVenda: 15x Nicole na Venda 12>, <ItemVenda: 20x Marcela na Venda 12>]
-Item saved: 15, produto: Nicole, quantidade: 15, preço: 65.00
-Item saved: 16, produto: Marcela, quantidade: 20, preço: 55.90
-Venda updated with total: 2093.00
+Formset errors: [{'preco_unitario': ['Este campo é obrigatório.']}]

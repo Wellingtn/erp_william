@@ -1,126 +1,239 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}{% if venda %}Editar{% else %}Nova{% endif %} Venda - Angels ERP{% endblock %}
 
-{% block header %}{% if venda %}Editar{% else %}Nova{% endif %} Venda{% endblock %}
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container .select2-selection--single {
+        height: 38px;
+        border-color: #d1d5db;
+        border-radius: 0.375rem;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 38px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4 text-purple-800">{% if venda %}Editar{% else %}Nova{% endif %} Venda</h2>
-    <form method="post" class="space-y-4" id="venda-form">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {% for field in form %}
-            <div>
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-purple-700">{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        <h3 class="text-xl font-semibold mt-6 mb-2 text-purple-800">Itens da Venda</h3>
-        {{ formset.management_form }}
-        <div id="item-formset" class="space-y-4">
-            {% for form in formset %}
-            <div class="item-form border-t border-purple-200 pt-4 {% if forloop.counter0 > 0 %}hidden{% endif %}">
-                {% for field in form.visible_fields %}
-                <div class="mb-2">
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-purple-700">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                    <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                {% endfor %}
-                {% for hidden in form.hidden_fields %}
-                    {{ hidden }}
-                {% endfor %}
-            </div>
-            {% endfor %}
-        </div>
-        <button type="button" id="add-item" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mt-2">Adicionar Item</button>
-        <div class="mt-6 text-right">
-            <p class="text-xl font-semibold text-purple-800">Total: R$ <span id="total-venda">0.00</span></p>
-        </div>
-        <div class="mt-6">
-            <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">{% if venda %}Atualizar{% else %}Finalizar{% endif %} Venda</button>
-        </div>
-    </form>
-</div>
+<div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <div class="px-4 py-6 sm:px-0">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            {% if venda %}Editar{% else %}Nova{% endif %} Venda
+        </h1>
 
+        {% if messages %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} rounded-md">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" id="vendaForm" class="space-y-8">
+            {% csrf_token %}
+            
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Informações da Venda</h2>
+                    <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.cliente.id_for_label }}" class="block text-sm font-medium text-gray-700">Cliente</label>
+                            {{ form.cliente }}
+                            {% if form.cliente.errors %}
+                                <p class="mt-2 text-sm text-red-600">{{ form.cliente.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ form.data.id_for_label }}" class="block text-sm font-medium text-gray-700">Data</label>
+                            <input type="date" name="{{ form.data.name }}" id="{{ form.data.id_for_label }}" value="{{ form.data.value|date:'Y-m-d' }}" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Itens da Venda</h2>
+                    {{ formset.management_form }}
+                    <div id="itemForms" class="space-y-4">
+                        {% for form in formset %}
+                            <div class="item-form bg-gray-50 p-4 rounded-md">
+                                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-3">
+                                    <div>
+                                        <label for="{{ form.produto.id_for_label }}" class="block text-sm font-medium text-gray-700">Produto</label>
+                                        {{ form.produto }}
+                                        {% if form.produto.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.produto.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.quantidade.id_for_label }}" class="block text-sm font-medium text-gray-700">Quantidade</label>
+                                        {{ form.quantidade }}
+                                        {% if form.quantidade.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.quantidade.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <label for="{{ form.preco_unitario.id_for_label }}" class="block text-sm font-medium text-gray-700">Preço Unitário</label>
+                                        {{ form.preco_unitario }}
+                                        {% if form.preco_unitario.errors %}
+                                            <p class="mt-2 text-sm text-red-600">{{ form.preco_unitario.errors.0 }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% if not forloop.first %}
+                                    <button type="button" class="remove-item mt-4 bg-red-100 text-red-700 py-2 px-4 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                                        Remover Item
+                                    </button>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" id="addItem" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Adicionar Item
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h2 class="text-lg leading-6 font-medium text-gray-900 mb-4">Resumo da Venda</h2>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700">Total da Venda:</span>
+                        <span id="totalVenda" class="text-2xl font-bold text-gray-900">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'vendas:lista_vendas' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Cancelar
+                </a>
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    {% if venda %}Atualizar{% else %}Criar{% endif %} Venda
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const formset = document.getElementById('item-formset');
-    const addButton = document.getElementById('add-item');
+    const itemForms = document.getElementById('itemForms');
+    const addItemBtn = document.getElementById('addItem');
     const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-    const totalVendaSpan = document.getElementById('total-venda');
-    const produtos = {{ produtos_json|safe }};
+    const totalVendaElement = document.getElementById('totalVenda');
 
-    function updateUnitPrice(selectElement) {
-        const priceInput = selectElement.closest('.item-form').querySelector('[id$=preco_unitario]');
-        const selectedProductId = selectElement.value;
-        if (selectedProductId in produtos) {
-            priceInput.value = produtos[selectedProductId];
-        } else {
-            priceInput.value = '';
-        }
-        updateTotal();
+    function initializeSelect2(element) {
+        $(element).select2({
+            theme: 'classic',
+            placeholder: 'Selecione um produto',
+            allowClear: true
+        });
     }
 
-    function updateTotal() {
+    function updateTotalVenda() {
         let total = 0;
-        formset.querySelectorAll('.item-form:not(.hidden)').forEach(form => {
-            const quantidade = parseFloat(form.querySelector('[id$=quantidade]').value) || 0;
-            const precoUnitario = parseFloat(form.querySelector('[id$=preco_unitario]').value) || 0;
+        document.querySelectorAll('.item-form').forEach(form => {
+            const quantidade = parseFloat(form.querySelector('[name$=quantidade]').value) || 0;
+            const precoUnitario = parseFloat(form.querySelector('[name$=preco_unitario]').value) || 0;
             total += quantidade * precoUnitario;
         });
-        totalVendaSpan.textContent = total.toFixed(2);
+        totalVendaElement.textContent = `R$ ${total.toFixed(2)}`;
     }
 
-    function setupItemForm(form) {
-        const select = form.querySelector('select[id$=produto]');
-        select.addEventListener('change', function() {
-            updateUnitPrice(this);
-        });
+    function updatePrecoUnitario(produtoSelect) {
+        const formIndex = produtoSelect.name.match(/\d+/)[0];
+        const precoUnitarioInput = document.getElementById(`id_form-${formIndex}-preco_unitario`);
+        const produtoId = produtoSelect.value;
 
-        form.querySelectorAll('input[id$=quantidade], input[id$=preco_unitario]').forEach(input => {
-            input.addEventListener('input', updateTotal);
-        });
-    }
-
-    formset.querySelectorAll('.item-form:not(.hidden)').forEach(setupItemForm);
-
-    addButton.addEventListener('click', function() {
-        const forms = formset.getElementsByClassName('item-form');
-        const hiddenForms = formset.querySelectorAll('.item-form.hidden');
-        
-        if (hiddenForms.length > 0) {
-            const nextForm = hiddenForms[0];
-            nextForm.classList.remove('hidden');
-            setupItemForm(nextForm);
+        if (produtoId) {
+            fetch(`/api/produto/${produtoId}/preco/`)
+                .then(response => response.json())
+                .then(data => {
+                    precoUnitarioInput.value = data.preco;
+                    updateTotalVenda();
+                })
+                .catch(error => console.error('Error:', error));
         } else {
-            const formNum = forms.length;
-            const newForm = forms[0].cloneNode(true);
-            
-            newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formNum}-`);
-            newForm.innerHTML = newForm.innerHTML.replace(/_\d+_/g, `_${formNum}_`);
-            
-            newForm.querySelectorAll('input:not([type=hidden]), select').forEach(input => {
-                input.value = '';
-            });
-
-            newForm.classList.remove('hidden');
-            formset.appendChild(newForm);
-            setupItemForm(newForm);
+            precoUnitarioInput.value = '';
+            updateTotalVenda();
         }
+    }
 
-        totalForms.value = parseInt(totalForms.value) + 1;
-        updateTotal();
+    addItemBtn.addEventListener('click', function() {
+        const formCount = itemForms.children.length;
+        const newForm = itemForms.children[0].cloneNode(true);
+        
+        newForm.innerHTML = newForm.innerHTML.replace(/-\d+-/g, `-${formCount}-`);
+        newForm.querySelectorAll('input, select').forEach(input => {
+            input.value = '';
+        });
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-item mt-4 bg-red-100 text-red-700 py-2 px-4 rounded-md hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2';
+        removeBtn.textContent = 'Remover Item';
+        removeBtn.addEventListener('click', function() {
+            newForm.remove();
+            updateForms();
+            updateTotalVenda();
+        });
+
+        newForm.appendChild(removeBtn);
+        itemForms.appendChild(newForm);
+        totalForms.value = formCount + 1;
+
+        initializeSelect2(newForm.querySelector('select'));
     });
 
-    updateTotal();
+    itemForms.addEventListener('change', function(event) {
+        if (event.target.name.includes('produto')) {
+            updatePrecoUnitario(event.target);
+        } else {
+            updateTotalVenda();
+        }
+    });
+
+    function updateForms() {
+        const forms = itemForms.children;
+        totalForms.value = forms.length;
+
+        for (let i = 0; i < forms.length; i++) {
+            forms[i].innerHTML = forms[i].innerHTML.replace(/-\d+-/g, `-${i}-`);
+        }
+    }
+
+    // Initialize Select2 for existing produto fields
+    document.querySelectorAll('.item-form select').forEach(initializeSelect2);
+
+    // Initialize Select2 for cliente field
+    $('#{{ form.cliente.id_for_label }}').select2({
+        theme: 'classic',
+        placeholder: 'Selecione um cliente',
+        allowClear: true
+    });
+
+    // Initial setup for remove buttons
+    document.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', function() {
+            this.closest('.item-form').remove();
+            updateForms();
+            updateTotalVenda();
+        });
+    });
+
+    // Initial total calculation
+    updateTotalVenda();
 });
 </script>
 {% endblock %}

@@ -2,49 +2,39 @@
 
 {% block title %}Detalhes da Venda - Angels ERP{% endblock %}
 
-{% block header %}Detalhes da Venda{% endblock %}
-
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6">
-    <h2 class="text-2xl font-semibold mb-4 text-purple-800">Detalhes da Venda #{{ venda.id }}</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div>
-            <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
-        </div>
-        <div>
-            <p><strong>Data:</strong> {{ venda.data|date:"d/m/Y H:i" }}</p>
-            <p><strong>Total:</strong> R$ {{ venda.total }}</p>
-        </div>
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Detalhes da Venda #{{ venda.id }}</h1>
+    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Informações da Venda</h2>
+        <p><strong>Cliente:</strong> {{ venda.cliente.nome }}</p>
+        <p><strong>Vendedor:</strong> {{ venda.vendedor.username }}</p>
+        <p><strong>Data:</strong> {{ venda.data }}</p>
+        <p><strong>Total:</strong> R$ {{ venda.total }}</p>
+        <p><strong>Status:</strong> {% if venda.finalizada %}Finalizada{% else %}Em andamento{% endif %}</p>
     </div>
-    <h3 class="text-xl font-semibold mb-2 text-purple-800">Itens da Venda</h3>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+    <div class="bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Itens da Venda</h2>
+        <table class="w-full">
             <thead>
-                <tr class="bg-purple-100">
-                    <th class="p-3">Produto</th>
-                    <th class="p-3">Quantidade</th>
-                    <th class="p-3">Preço Unitário</th>
-                    <th class="p-3">Subtotal</th>
+                <tr>
+                    <th class="text-left">Produto</th>
+                    <th class="text-left">Quantidade</th>
+                    <th class="text-left">Preço Unitário</th>
+                    <th class="text-left">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in venda.itens.all %}
-                <tr class="border-b border-purple-200 hover:bg-purple-50">
-                    <td class="p-3">{{ item.produto.nome }}</td>
-                    <td class="p-3">{{ item.quantidade }}</td>
-                    <td class="p-3">R$ {{ item.preco_unitario }}</td>
-                    <td class="p-3">R$ {{ item.subtotal }}</td>
+                <tr>
+                    <td>{{ item.produto.nome }}</td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>R$ {{ item.preco_unitario }}</td>
+                    <td>R$ {{ item.subtotal }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    </div>
-    <div class="mt-4 text-right">
-        <p class="text-xl font-semibold">Total: R$ {{ venda.total }}</p>
-    </div>
-    <div class="mt-6">
-        <a href="{% url 'vendas:lista_vendas' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mr-2">Voltar para Lista de Vendas</a>
-        <a href="{% url 'vendas:editar_venda' venda.id %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Editar Venda</a>
     </div>
 </div>
 {% endblock %}

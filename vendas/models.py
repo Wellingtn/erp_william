@@ -7,11 +7,23 @@ class Venda(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT)
     data = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    finalizada = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Venda {self.id} para {self.cliente.nome}"
 
-    def calcular_total(self):
+    def adicionar_item(self, produto, quantidade):
+        item, created = ItemVenda.objects.get_or_create(
+            venda=self,
+            produto=produto,
+            defaults={'quantidade': quantidade, 'preco_unitario': produto.preco}
+        )
+        if not created:
+            item.quantidade += quantidade
+            item.save()
+        self.atualizar_total()
+
+    def atualizar_total(self):
         self.total = sum(item.subtotal for item in self.itens.all())
         self.save()
 
@@ -27,8 +39,4 @@ class ItemVenda(models.Model):
 
     def __str__(self):
         return f"{self.quantidade}x {self.produto.nome} na Venda {self.venda.id}"
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.venda.calcular_total()
 

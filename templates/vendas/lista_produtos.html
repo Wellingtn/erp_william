@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos Disponíveis - Angels ERP{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Produtos Disponíveis</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for produto in produtos %}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-semibold mb-2">{{ produto.nome }}</h2>
+            <p class="text-gray-600 mb-4">{{ produto.descricao }}</p>
+            <p class="text-lg font-bold mb-2">R$ {{ produto.preco }}</p>
+            <p class="text-sm text-gray-500 mb-4">Estoque: {{ produto.quantidade }}</p>
+            <a href="{% url 'vendas:iniciar_venda' %}?produto={{ produto.id }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Vender
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

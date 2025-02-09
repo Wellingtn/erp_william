@@ -66,7 +66,7 @@
     </div>
     <div class="mt-6">
         <a href="{% url 'vendedoras:lista_vendedoras' %}" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300 mr-2">Voltar para Lista de Vendedoras</a>
-        <a href="{% url 'vendedoras:realizar_acerto' vendedora.id %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Realizar Acerto</a>
+        <a href="{% url 'core:dashboard'  %}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Iniciar Acerto</a>
     </div>
 </div>
 {% endblock %}
