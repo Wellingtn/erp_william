@@ -5,21 +5,44 @@ from .models import Cliente
 from .forms import ClienteForm
 from vendas.models import Venda
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
 
 def lista_clientes(request):
-    clientes = Cliente.objects.all()
+    search_query = request.GET.get('search', '')
+    if search_query:
+        clientes_list = Cliente.objects.filter(
+            Q(nome__icontains=search_query) |
+            Q(cpf__icontains=search_query) |
+            Q(telefone1__icontains=search_query) |
+            Q(telefone2__icontains=search_query)
+        ).order_by('nome')
+    else:
+        clientes_list = Cliente.objects.all().order_by('nome')
+
+    paginator = Paginator(clientes_list, 9)  # Mostrar 9 clientes por página
+    page = request.GET.get('page')
+    try:
+        clientes = paginator.page(page)
+    except PageNotAnInteger:
+        clientes = paginator.page(1)
+    except EmptyPage:
+        clientes = paginator.page(paginator.num_pages)
+
     return render(request, 'clientes/lista_clientes.html', {'clientes': clientes})
+
+
 
 def adicionar_cliente(request):
     if request.method == 'POST':
-        form = ClienteForm(request.POST)
+        form = ClienteForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Cliente adicionado com sucesso!')
             return redirect('clientes:lista_clientes')
     else:
         form = ClienteForm()
-    return render(request, 'clientes/form_cliente.html', {'form': form})
+    return render(request, 'clientes/adicionar_cliente.html', {'form': form})
+
+
 
 def editar_cliente(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
@@ -34,7 +57,7 @@ def editar_cliente(request, pk):
     return render(request, 'clientes/form_cliente.html', {'form': form, 'cliente': cliente})
 
 def detalhe_cliente(request, pk):
-    cliente = get_object_or_404(Cliente, id=pk)
+    cliente = get_object_or_404(Cliente, pk=pk)
     vendas = Venda.objects.filter(cliente=cliente).order_by('-data')
     
     paginator = Paginator(vendas, 9)  # Mostrar 10 vendas por página

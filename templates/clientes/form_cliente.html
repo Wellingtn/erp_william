@@ -1,25 +1,126 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Cliente - Angels ERP{% endblock %}
+{% block title %}Adicionar Cliente - Angels ERP{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #495057;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+    .form-control:focus {
+        color: #495057;
+        background-color: #fff;
+        border-color: #80bdff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
-    <h2 class="text-2xl font-semibold mb-4 text-purple-800">{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Cliente</h2>
-    <form method="post" class="space-y-4">
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-purple-800">Adicionar Novo Cliente</h1>
+    <form method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         {% csrf_token %}
-        {% for field in form %}
-        <div>
-            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-purple-700">{{ field.label }}</label>
-            {{ field }}
-            {% if field.errors %}
-            <p class="text-red-500 text-xs mt-1">{{ field.errors.0 }}</p>
-            {% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-group">
+                <label for="{{ form.foto.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Foto:</label>
+                {{ form.foto }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.nome.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
+                {{ form.nome }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.cpf.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">CPF:</label>
+                {{ form.cpf }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.rua.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Rua:</label>
+                {{ form.rua }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.numero.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Número:</label>
+                {{ form.numero }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.bairro.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Bairro:</label>
+                {{ form.bairro }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.cidade.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Cidade:</label>
+                {{ form.cidade }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.uf.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">UF:</label>
+                {{ form.uf }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.telefone1.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Telefone 1:</label>
+                {{ form.telefone1 }}
+            </div>
+            <div class="form-group">
+                <label for="{{ form.telefone2.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Telefone 2:</label>
+                {{ form.telefone2 }}
+            </div>
         </div>
-        {% endfor %}
-        <div>
-            <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 transition duration-300">Salvar</button>
+        <div class="form-group mt-4">
+            <label for="{{ form.obs.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Observações:</label>
+            {{ form.obs }}
+        </div>
+        <div class="flex items-center justify-between mt-6">
+            <button class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                Adicionar Cliente
+            </button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const cpfInput = document.getElementById('{{ form.cpf.id_for_label }}');
+        const telefone1Input = document.getElementById('{{ form.telefone1.id_for_label }}');
+        const telefone2Input = document.getElementById('{{ form.telefone2.id_for_label }}');
+
+        function formatCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        }
+
+        function formatTelefone(telefone) {
+            telefone = telefone.replace(/\D/g, '');
+            return telefone.replace(/(\d{2})(\d{4,5})(\d{4})/, "($1) $2-$3");
+        }
+
+        cpfInput.addEventListener('input', function(e) {
+            e.target.value = formatCPF(e.target.value);
+        });
+
+        telefone1Input.addEventListener('input', function(e) {
+            e.target.value = formatTelefone(e.target.value);
+        });
+
+        telefone2Input.addEventListener('input', function(e) {
+            e.target.value = formatTelefone(e.target.value);
+        });
+    });
+</script>
 {% endblock %}
 
