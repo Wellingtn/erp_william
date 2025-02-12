@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'clientes',
     'tailwind',
     'theme',
+    'widget_tweaks',
 ]
 
 

@@ -1,125 +1,265 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Adicionar Cliente - Angels ERP{% endblock %}
+{% block title %}{% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Cliente - Angels ERP{% endblock %}
 
 {% block extra_css %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 <style>
-    .form-group {
-        margin-bottom: 1rem;
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.5s ease-out forwards;
     }
     .form-control {
-        display: block;
-        width: 100%;
-        padding: 0.375rem 0.75rem;
-        font-size: 1rem;
-        line-height: 1.5;
-        color: #495057;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid #ced4da;
-        border-radius: 0.25rem;
-        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        @apply block w-full px-4 py-3 text-gray-700 bg-white border border-purple-300 rounded-lg focus:border-purple-500 focus:ring-purple-500 focus:outline-none focus:ring focus:ring-opacity-40 transition duration-150 ease-in-out;
     }
     .form-control:focus {
-        color: #495057;
-        background-color: #fff;
-        border-color: #80bdff;
-        outline: 0;
-        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        @apply border-purple-500 ring-2 ring-purple-200;
+    }
+    .form-label {
+        @apply block mb-2 text-sm font-medium text-purple-600;
+    }
+    .input-icon i {
+        @apply text-purple-600;
+    }
+    .form-group {
+        @apply mb-6;
+    }
+    .input-icon {
+        @apply absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-purple-400;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-purple-800">Adicionar Novo Cliente</h1>
-    <form method="post" enctype="multipart/form-data" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        {% csrf_token %}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-group">
-                <label for="{{ form.foto.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Foto:</label>
-                {{ form.foto }}
+<div class="bg-gradient-to-br from-purple-100 to-indigo-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="bg-purple-600 py-6 px-8">
+                <h1 class="text-3xl font-extrabold text-white">
+                    {% if form.instance.pk %}Editar{% else %}Adicionar{% endif %} Cliente
+                </h1>
+                <p class="mt-2 text-purple-200">Preencha os detalhes do cliente abaixo</p>
             </div>
-            <div class="form-group">
-                <label for="{{ form.nome.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
-                {{ form.nome }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.cpf.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">CPF:</label>
-                {{ form.cpf }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.rua.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Rua:</label>
-                {{ form.rua }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.numero.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Número:</label>
-                {{ form.numero }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.bairro.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Bairro:</label>
-                {{ form.bairro }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.cidade.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Cidade:</label>
-                {{ form.cidade }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.uf.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">UF:</label>
-                {{ form.uf }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.telefone1.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Telefone 1:</label>
-                {{ form.telefone1 }}
-            </div>
-            <div class="form-group">
-                <label for="{{ form.telefone2.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Telefone 2:</label>
-                {{ form.telefone2 }}
+            <form method="post" enctype="multipart/form-data" class="p-8" id="clientForm">
+    {% csrf_token %}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="md:col-span-1 flex justify-center items-center">
+            <div class="relative mb-6">
+                <input type="file" id="{{ form.foto.id_for_label }}" name="{{ form.foto.html_name }}" class="hidden" accept="image/*">
+                <label for="{{ form.foto.id_for_label }}" class="cursor-pointer">
+                    <div class="w-32 h-32 rounded-full bg-purple-100 flex items-center justify-center overflow-hidden hover:bg-purple-200 transition duration-300 ease-in-out">
+                        {% if form.instance.foto %}
+                            <img src="{{ form.instance.foto.url }}" alt="Foto do cliente" class="w-full h-full object-cover" id="photoPreview">
+                        {% else %}
+                            <i class="fas fa-user-circle text-6xl text-purple-400" id="photoPreview"></i>
+                        {% endif %}
+                    </div>
+                </label>
             </div>
         </div>
-        <div class="form-group mt-4">
-            <label for="{{ form.obs.id_for_label }}" class="block text-gray-700 text-sm font-bold mb-2">Observações:</label>
-            {{ form.obs }}
+        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-group">
+                <label for="{{ form.nome.id_for_label }}" class="form-label text-purple-600">Nome</label>
+                <div class="relative">
+                    <div class="input-icon">
+                        <i class="fas fa-user text-purple-600"></i>
+                    </div>
+                    <input type="text" name="{{ form.nome.name }}" id="{{ form.nome.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.nome.value %}value="{{ form.nome.value }}"{% endif %}>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="{{ form.cpf.id_for_label }}" class="form-label text-purple-600">CPF</label>
+                <div class="relative">
+                    <div class="input-icon">
+                        <i class="fas fa-id-card text-purple-600"></i>
+                    </div>
+                    <input type="text" name="{{ form.cpf.name }}" id="{{ form.cpf.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.cpf.value %}value="{{ form.cpf.value }}"{% endif %}>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="{{ form.telefone1.id_for_label }}" class="form-label text-purple-600">Telefone 1</label>
+                <div class="relative">
+                    <div class="input-icon">
+                        <i class="fas fa-phone text-purple-600"></i>
+                    </div>
+                    <input type="text" name="{{ form.telefone1.name }}" id="{{ form.telefone1.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.telefone1.value %}value="{{ form.telefone1.value }}"{% endif %}>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="{{ form.telefone2.id_for_label }}" class="form-label text-purple-600">Telefone 2</label>
+                <div class="relative">
+                    <div class="input-icon">
+                        <i class="fas fa-mobile-alt text-purple-600"></i>
+                    </div>
+                    <input type="text" name="{{ form.telefone2.name }}" id="{{ form.telefone2.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.telefone2.value %}value="{{ form.telefone2.value }}"{% endif %}>
+                </div>
+            </div>
         </div>
-        <div class="flex items-center justify-between mt-6">
-            <button class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-                Adicionar Cliente
-            </button>
+        <div class="form-group">
+            <label for="{{ form.rua.id_for_label }}" class="form-label text-purple-600">Rua</label>
+            <div class="relative">
+                <div class="input-icon">
+                    <i class="fas fa-road text-purple-600"></i>
+                </div>
+                <input type="text" name="{{ form.rua.name }}" id="{{ form.rua.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.rua.value %}value="{{ form.rua.value }}"{% endif %}>
+            </div>
         </div>
-    </form>
+        <div class="form-group">
+            <label for="{{ form.numero.id_for_label }}" class="form-label text-purple-600">Número</label>
+            <div class="relative">
+                <div class="input-icon">
+                    <i class="fas fa-home text-purple-600"></i>
+                </div>
+                <input type="text" name="{{ form.numero.name }}" id="{{ form.numero.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.numero.value %}value="{{ form.numero.value }}"{% endif %}>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="{{ form.bairro.id_for_label }}" class="form-label text-purple-600">Bairro</label>
+            <div class="relative">
+                <div class="input-icon">
+                    <i class="fas fa-map-marker-alt text-purple-600"></i>
+                </div>
+                <input type="text" name="{{ form.bairro.name }}" id="{{ form.bairro.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.bairro.value %}value="{{ form.bairro.value }}"{% endif %}>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="{{ form.cidade.id_for_label }}" class="form-label text-purple-600">Cidade</label>
+            <div class="relative">
+                <div class="input-icon">
+                    <i class="fas fa-city text-purple-600"></i>
+                </div>
+                <input type="text" name="{{ form.cidade.name }}" id="{{ form.cidade.id_for_label }}" class="form-control pl-10 rounded-lg" {% if form.cidade.value %}value="{{ form.cidade.value }}"{% endif %}>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="{{ form.uf.id_for_label }}" class="form-label text-purple-600">UF</label>
+            <div class="relative">
+                <div class="input-icon">
+                    <i class="fas fa-map text-purple-600"></i>
+                </div>
+                <select name="{{ form.uf.name }}" id="{{ form.uf.id_for_label }}" class="form-control pl-10 rounded-lg">
+                    {% for value, label in form.uf.field.choices %}
+                        <option value="{{ value }}" {% if form.uf.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group md:col-span-3">
+            <label for="{{ form.obs.id_for_label }}" class="form-label text-purple-600">Observações</label>
+            <div class="relative">
+                <div class="input-icon">
+                    <i class="fas fa-comment text-purple-600"></i>
+                </div>
+                <textarea name="{{ form.obs.name }}" id="{{ form.obs.id_for_label }}" class="form-control h-32 resize-none pl-10 rounded-lg">{% if form.obs.value %}{{ form.obs.value }}{% endif %}</textarea>
+            </div>
+        </div>
+    </div>
+    <div class="mt-8">
+        <button type="submit" class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition duration-150 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
+            <i class="fas fa-save mr-2"></i>{% if form.instance.pk %}Atualizar{% else %}Adicionar{% endif %} Cliente
+        </button>
+    </div>
+</form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const cpfInput = document.getElementById('{{ form.cpf.id_for_label }}');
         const telefone1Input = document.getElementById('{{ form.telefone1.id_for_label }}');
         const telefone2Input = document.getElementById('{{ form.telefone2.id_for_label }}');
+        const fotoInput = document.getElementById('{{ form.foto.id_for_label }}');
+        const photoPreview = document.getElementById('photoPreview');
+        const formGroups = document.querySelectorAll('.form-group');
 
-        function formatCPF(cpf) {
-            cpf = cpf.replace(/\D/g, '');
-            return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+        new Cleave(cpfInput, {
+            delimiters: ['.', '.', '-'],
+            blocks: [3, 3, 3, 2],
+            numericOnly: true
+        });
+
+        new Cleave(telefone1Input, {
+            delimiters: ['(', ')', ' ', '-'],
+            blocks: [0, 2, 5, 4],
+            numericOnly: true
+        });
+
+        new Cleave(telefone2Input, {
+            delimiters: ['(', ')', ' ', '-'],
+            blocks: [0, 2, 5, 4],
+            numericOnly: true
+        });
+
+        fotoInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (photoPreview.tagName.toLowerCase() === 'i') {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.alt = 'Foto do cliente';
+                        img.className = 'w-full h-full object-cover';
+                        img.id = 'photoPreview';
+                        photoPreview.parentNode.replaceChild(img, photoPreview);
+                    } else {
+                        photoPreview.src = e.target.result;
+                    }
+                }
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        formGroups.forEach((group, index) => {
+            group.classList.add('animate-fadeIn');
+            group.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        document.getElementById('clientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (validateForm()) {
+                this.submit();
+            }
+        });
+
+        function validateForm() {
+            let isValid = true;
+            if (cpfInput.value.replace(/[^\d]/g, '').length !== 11) {
+                showError(cpfInput, 'CPF inválido');
+                isValid = false;
+            } else {
+                clearError(cpfInput);
+            }
+            // Adicione mais validações conforme necessário
+            return isValid;
         }
 
-        function formatTelefone(telefone) {
-            telefone = telefone.replace(/\D/g, '');
-            return telefone.replace(/(\d{2})(\d{4,5})(\d{4})/, "($1) $2-$3");
+        function showError(input, message) {
+            const formGroup = input.closest('.form-group');
+            const errorElement = formGroup.querySelector('.error-message') || document.createElement('p');
+            errorElement.textContent = message;
+            errorElement.className = 'error-message text-red-500 text-xs mt-1';
+            if (!formGroup.querySelector('.error-message')) {
+                formGroup.appendChild(errorElement);
+            }
+            input.classList.add('border-red-500');
         }
 
-        cpfInput.addEventListener('input', function(e) {
-            e.target.value = formatCPF(e.target.value);
-        });
-
-        telefone1Input.addEventListener('input', function(e) {
-            e.target.value = formatTelefone(e.target.value);
-        });
-
-        telefone2Input.addEventListener('input', function(e) {
-            e.target.value = formatTelefone(e.target.value);
-        });
+        function clearError(input) {
+            const formGroup = input.closest('.form-group');
+            const errorElement = formGroup.querySelector('.error-message');
+            if (errorElement) {
+                errorElement.remove();
+            }
+            input.classList.remove('border-red-500');
+        }
     });
 </script>
 {% endblock %}
