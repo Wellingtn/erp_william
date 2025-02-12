@@ -2,10 +2,29 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import Vendedora, EstoqueVendedora
 from .forms import VendedoraForm, EstoqueVendedoraForm
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 def lista_vendedoras(request):
+    search_query = request.GET.get('search', '')
     vendedoras = Vendedora.objects.all()
-    return render(request, 'vendedoras/lista_vendedoras.html', {'vendedoras': vendedoras})
+
+    if search_query:
+        vendedoras = vendedoras.filter(
+            Q(nome__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(cpf__icontains=search_query)
+        )
+
+    paginator = Paginator(vendedoras, 12)  # Mostrar 12 vendedoras por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'vendedoras': page_obj,
+        'search_query': search_query,
+    }
+    return render(request, 'vendedoras/lista_vendedoras.html', context)
 
 def adicionar_vendedora(request):
     if request.method == 'POST':
