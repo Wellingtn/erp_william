@@ -26,6 +26,25 @@
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         transform: translateY(-5px);
     }
+    .client-photo {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f3f4f6;
+    }
+    .client-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .client-photo i {
+        font-size: 48px;
+        color: #8b5cf6;
+    }
     .search-bar {
         max-width: 600px;
         margin: 0 auto 2rem;
@@ -61,21 +80,28 @@
     <div class="client-grid" id="clientGrid">
         {% for cliente in clientes %}
         <div class="client-card shadow-md" data-name="{{ cliente.nome|lower }}">
-            <div class="relative">
-                <div class="w-32 h-32 mx-auto rounded-full flex items-center justify-center overflow-hidden">
-                    <i class="fas fa-user-circle text-6xl text-purple-600"></i>
-                </div>
-            </div>
             <div class="p-4">
+                <div class="client-photo mx-auto mb-4">
+                    {% if cliente.foto %}
+                        <img src="{{ cliente.foto.url }}" alt="{{ cliente.nome }}" class="w-full h-full object-cover">
+                    {% else %}
+                        <i class="fas fa-user-circle"></i>
+                    {% endif %}
+                </div>
                 <h2 class="text-xl font-semibold mb-2 text-gray-800">{{ cliente.nome }}</h2>
                 <p class="text-sm text-gray-600 mb-2">
-                    <i class="fas fa-envelope mr-2 text-purple-500"></i>{{ cliente.email }}
+                    <i class="fas fa-id-card mr-2 text-purple-500"></i>{{ cliente.cpf|default:"CPF não informado" }}
                 </p>
                 <p class="text-sm text-gray-600 mb-1">
-                    <i class="fas fa-phone mr-2 text-purple-500"></i>{{ cliente.telefone }}
+                    <i class="fas fa-phone mr-2 text-purple-500"></i>{{ cliente.telefone1|default:"Telefone não informado" }}
                 </p>
                 <p class="text-sm text-gray-600 mb-2">
-                    <i class="fas fa-map-marker-alt mr-2 text-purple-500"></i>{{ cliente.endereco }}
+                    <i class="fas fa-map-marker-alt mr-2 text-purple-500"></i>
+                    {% if cliente.cidade and cliente.uf %}
+                        {{ cliente.cidade }}/{{ cliente.uf }}
+                    {% else %}
+                        Endereço não informado
+                    {% endif %}
                 </p>
                 <a href="{% url 'clientes:detalhe_cliente' cliente.id %}" 
                    class="block w-full bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-300">
@@ -139,3 +165,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
