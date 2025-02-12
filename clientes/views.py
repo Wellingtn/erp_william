@@ -40,7 +40,7 @@ def adicionar_cliente(request):
             return redirect('clientes:lista_clientes')
     else:
         form = ClienteForm()
-    return render(request, 'clientes/adicionar_cliente.html', {'form': form})
+    return render(request, 'clientes/form_cliente.html', {'form': form})
 
 
 
